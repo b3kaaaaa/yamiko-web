@@ -18,7 +18,7 @@ export default function CommunityPage() {
     useEffect(() => {
         const fetchData = async () => {
             // Sidebar Widgets (Spotlight is here)
-            const { data } = await supabase.rpc('get_sidebar_widgets');
+            const { data } = await (supabase.rpc as any)('get_sidebar_widgets');
             if (data) {
                 setWidgetsData(data);
             }

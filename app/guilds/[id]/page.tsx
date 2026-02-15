@@ -39,7 +39,7 @@ export default function SingleGuildPage({ params }: { params: Promise<{ id: stri
     const fetchData = async () => {
         try {
             // 1. Try RPC with the provided ID (could be UUID or Tag)
-            const { data: guildData, error: rpcError } = await supabase.rpc('get_full_guild_data', {
+            const { data: guildData, error: rpcError } = await (supabase.rpc as any)('get_full_guild_data', {
                 p_guild_id: guildId
             });
 
@@ -61,7 +61,7 @@ export default function SingleGuildPage({ params }: { params: Promise<{ id: stri
 
                 // 3. Retry RPC with the resolved UUID
                 console.log("Fallback: Found UUID for tag", guildId, "->", tagRef.id);
-                const { data: retryData, error: retryError } = await supabase.rpc('get_full_guild_data', {
+                const { data: retryData, error: retryError } = await (supabase.rpc as any)('get_full_guild_data', {
                     p_guild_id: tagRef.id
                 });
 
@@ -85,14 +85,14 @@ export default function SingleGuildPage({ params }: { params: Promise<{ id: stri
     const handleJoin = async () => {
         const message = window.prompt("Сообщение лидеру:");
         if (message === null) return;
-        const { error } = await supabase.rpc('request_join_guild', { p_guild_id: guildId, p_message: message || '' });
+        const { error } = await (supabase.rpc as any)('request_join_guild', { p_guild_id: guildId, p_message: message || '' });
         if (error) alert(error.message); else { alert('Заявка отправлена!'); fetchData(); }
     };
 
     const handleDonate = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const { error } = await supabase.rpc('donate_to_treasury', {
+            const { error } = await (supabase.rpc as any)('donate_to_treasury', {
                 p_guild_id: guildId,
                 p_amount: parseInt(donationAmount),
                 p_currency_type: donationCurrency

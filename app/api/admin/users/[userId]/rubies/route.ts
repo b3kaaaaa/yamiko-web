@@ -30,7 +30,7 @@ export async function POST(
         const supabase = createAdminClient();
 
         // Call the grant_rubies Postgres function
-        const { data, error } = await supabase.rpc('grant_rubies', {
+        const { data, error } = await (supabase.rpc as any)('grant_rubies', {
             target_user_id: userId,
             ruby_amount: amount,
             reason: reason,

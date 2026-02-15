@@ -57,7 +57,7 @@ export function usePopularFeed() {
 
             const { data: { user } } = await supabase.auth.getUser();
 
-            const { data, error } = await supabase.rpc('get_popular_feed', {
+            const { data, error } = await (supabase.rpc as any)('get_popular_feed', {
                 filter_type: params.filterType,
                 time_period: params.timePeriod,
                 search_query: params.searchQuery || null,

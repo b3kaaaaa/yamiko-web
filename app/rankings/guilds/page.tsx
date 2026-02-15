@@ -28,7 +28,7 @@ export default function TopGuildsPage() {
     useEffect(() => {
         const fetchGuilds = async () => {
             try {
-                const { data, error } = await supabase.rpc('get_top_guilds', { limit_count: 50 });
+                const { data, error } = await (supabase.rpc as any)('get_top_guilds', { limit_count: 50 });
                 if (error) throw error;
                 setGuilds(data || []);
             } catch (err) {

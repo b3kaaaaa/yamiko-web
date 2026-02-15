@@ -39,12 +39,12 @@ export default function ReaderViewer({ chapter, manga, navigation }: ReaderViewe
     useEffect(() => {
         const syncProgress = async () => {
             if (chapter?.id && manga?.id) {
-                await supabase.rpc('sync_reading_progress', {
+                await (supabase.rpc as any)('sync_reading_progress', {
                     p_manga_id: manga.id,
                     p_chapter_id: chapter.id,
                     p_page_number: 1, // Start at page 1
                     p_total_pages: chapter.pages?.length || 0
-                } as any);
+                });
             }
         };
         syncProgress();

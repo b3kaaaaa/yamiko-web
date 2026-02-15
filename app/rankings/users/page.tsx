@@ -24,7 +24,7 @@ export default function TopUsersPage() {
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const { data, error } = await supabase.rpc('get_top_readers', { limit_count: 50 });
+                const { data, error } = await (supabase.rpc as any)('get_top_readers', { limit_count: 50 });
                 if (error) throw error;
                 setUsers(data || []);
             } catch (err) {

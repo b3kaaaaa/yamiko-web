@@ -67,7 +67,7 @@ export default async function MangaDetailsPage({ params }: PageProps) {
     ] = await Promise.all([
         supabaseAdmin.from('profiles').select('id, username, avatar_url, level, exp, display_id').order('exp', { ascending: false }).limit(4),
         supabaseAdmin.from('manga').select('*').neq('id', manga.id).limit(4),
-        supabase.rpc('get_manga_territory', { p_manga_id: manga.id })
+        (supabase.rpc as any)('get_manga_territory', { p_manga_id: manga.id })
     ]);
 
     const territory = territoryData as MangaTerritoryInfo | null;

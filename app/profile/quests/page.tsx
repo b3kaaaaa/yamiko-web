@@ -44,7 +44,7 @@ export default function QuestsPage() {
             // 1. Generate Quests if needed (Auto-trigger)
             // We can try to call it, it safely does nothing if quests exist
             // @ts-ignore
-            await supabase.rpc('generate_daily_quests', { target_user_id: user.id });
+            await (supabase.rpc as any)('generate_daily_quests', { target_user_id: user.id });
 
             // 2. Fetch Active Quests
             const { data: userQuests, error: questsError } = await supabase
@@ -129,7 +129,7 @@ export default function QuestsPage() {
     const handleClaim = async (questId: string) => {
         try {
             // @ts-ignore
-            const { data, error } = await supabase.rpc('claim_quest_reward', { target_quest_id: questId });
+            const { data, error } = await (supabase.rpc as any)('claim_quest_reward', { target_quest_id: questId });
             if (error) throw error;
 
             // Refresh data to show claimed state and header update

@@ -23,7 +23,7 @@ export async function POST(
         const supabase = createAdminClient();
 
         // Call the add_exp Postgres function
-        const { data, error } = await supabase.rpc('add_exp', {
+        const { data, error } = await (supabase.rpc as any)('add_exp', {
             target_user_id: userId,
             exp_amount: amount,
             reason: reason || 'Admin grant',

@@ -60,7 +60,7 @@ export default function GuildsPage() {
             if (filterType === 'members') sortBy = 'members';
             if (filterType === 'level') sortBy = 'level';
 
-            const { data, error } = await supabase.rpc('get_public_guilds', {
+            const { data, error } = await (supabase.rpc as any)('get_public_guilds', {
                 p_filter: filters,
                 p_sort_by: sortBy,
                 p_page: pageVal,

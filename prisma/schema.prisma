@@ -1,0 +1,491 @@
+// Yamiko Platform - Comprehensive Database Schema
+// PostgreSQL database via Prisma ORM
+// Supports: User/RPG System, Manga Content, Gacha/Cards, Guilds, Social Features
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// USER & RPG PROFILE SYSTEM
+// ============================================================
+
+enum UserRole {
+  USER
+  ADMIN
+  MODERATOR
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  email     String   @unique
+  password  String?  // Nullable if using OAuth
+  role      UserRole @default(USER)
+  
+  // RPG Stats
+  level     Int      @default(1)
+  exp       Int      @default(0)
+  rubies    Int      @default(0)    // Premium currency
+  energy    Int      @default(100)  // Action points (regenerates)
+  
+  // Profile
+  bio         String?
+  avatarUrl   String?  @map("avatar_url")
+  bannerUrl   String?  @map("banner_url")
+  
+  // Timestamps
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  lastLogin   DateTime? @map("last_login")
+  
+  // Relations
+  library         LibraryEntry[]
+  readingHistory  ReadingHistory[]
+  userCards       UserCard[]
+  guildMember     GuildMember?
+  forumThreads    ForumThread[]
+  comments        Comment[]
+  notifications   Notification[]
+  marketListings  MarketListing[]
+  transactions    Transaction[]
+  achievements    UserAchievement[]
+  
+  @@index([username])
+  @@index([email])
+  @@map("profiles")
+}
+
+
+// ============================================================
+// MANGA & CONTENT MANAGEMENT
+// ============================================================
+
+enum MangaStatus {
+  ONGOING
+  COMPLETED
+  FROZEN
+  HIATUS
+}
+
+model Manga {
+  id              String       @id @default(cuid())
+  title           String
+  slug            String       @unique
+  description     String       @db.Text
+  coverImage      String       @map("cover_url")
+  backgroundVideo String?      @map("background_video")
+  status          MangaStatus  @default(ONGOING)
+  rating          Float        @default(0)
+  views           Int          @default(0)
+  
+  // Additional metadata
+  author          String?
+  artist          String?
+  releaseYear     Int?         @map("release_year")
+  type            String?      @default("MANHWA")
+  ageRating       String?      @map("age_rating") @default("16+")
+  publisher       String?
+  studio          String?
+  country         String?      @default("KR")
+  fandomUrl       String?      @map("fandom_url")
+  forumUrl        String?      @map("forum_url")
+  altTitles       String?      @map("alt_titles")
+  translationStatus String?    @map("translation_status") @default("ONGOING")
+  
+  // Timestamps
+  createdAt       DateTime     @default(now()) @map("created_at")
+  updatedAt       DateTime     @updatedAt @map("updated_at")
+  
+  // Relations
+  chapters        Chapter[]
+  genres          MangaGenre[]
+  tags            MangaTag[]
+  libraryEntries  LibraryEntry[]
+  readingHistory  ReadingHistory[]
+  forumThreads    ForumThread[]
+  wikiCharacters  WikiCharacter[]
+  
+  @@index([slug])
+  @@index([rating])
+  @@index([views])
+  @@map("manga")
+}
+
+
+model Genre {
+  id     String       @id @default(cuid())
+  name   String       @unique
+  slug   String       @unique
+  mangas MangaGenre[]
+
+  @@map("genres")
+}
+
+model Tag {
+  id     String     @id @default(cuid())
+  name   String     @unique
+  slug   String     @unique
+  mangas MangaTag[]
+
+  @@map("tags")
+}
+
+// Many-to-many junction tables
+model MangaGenre {
+  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  mangaId String @map("manga_id")
+  genre   Genre  @relation(fields: [genreId], references: [id], onDelete: Cascade)
+  genreId String @map("genre_id")
+  
+  @@id([mangaId, genreId])
+  @@map("manga_genres")
+}
+
+model MangaTag {
+  manga   Manga  @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  mangaId String @map("manga_id")
+  tag     Tag    @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  tagId   String @map("tag_id")
+  
+  @@id([mangaId, tagId])
+  @@map("manga_tags")
+}
+
+
+model Chapter {
+  id          String   @id @default(cuid())
+  mangaId     String   @map("manga_id")
+  title       String
+  number      Float    @map("chapter_number") // Supports 10.5, 11.5 etc.
+  images      String[] @map("images_urls") // Array of image URLs
+  likes       Int      @default(0)
+  isLocked    Boolean  @default(false) @map("is_locked")
+  
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  
+  // Relations
+  manga           Manga            @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  readingHistory  ReadingHistory[]
+  
+  @@unique([mangaId, number])
+  @@index([mangaId])
+  @@map("chapters")
+}
+
+
+model LibraryEntry {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  mangaId   String   @map("manga_id")
+  
+  // User preferences
+  isFavorite   Boolean  @default(false) @map("is_favorite")
+  status       String   @default("READING") // READING, COMPLETED, PLAN_TO_READ, DROPPED
+  
+  addedAt      DateTime @default(now()) @map("added_at")
+  
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  manga Manga @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, mangaId])
+  @@index([userId])
+  @@map("library_entries")
+}
+
+
+model ReadingHistory {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  mangaId    String   @map("manga_id")
+  chapterId  String   @map("chapter_id")
+  progress   Float    @default(0) // Percentage (0-100)
+  
+  lastReadAt DateTime @default(now()) @map("last_read_at")
+  
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  manga   Manga   @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  chapter Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, chapterId])
+  @@index([userId])
+  @@index([lastReadAt])
+  @@map("reading_history")
+}
+
+
+// ============================================================
+// GACHA & CARD SYSTEM (The Market)
+// ============================================================
+
+enum CardRarity {
+  COMMON
+  RARE
+  SR    // Super Rare
+  SSR   // Super Super Rare
+  UR    // Ultra Rare
+}
+
+model CardCollection {
+  id          String         @id @default(cuid())
+  name        String
+  description String?
+  
+  cardTemplates CardTemplate[]
+  
+  @@index([name])
+}
+
+model CardTemplate {
+  id           String      @id @default(cuid())
+  name         String
+  image        String
+  rarity       CardRarity
+  stats        Json        // { atk: 100, def: 80, hp: 500 }
+  collectionId String?
+  
+  description  String?     @db.Text
+  
+  createdAt    DateTime    @default(now())
+  
+  collection   CardCollection? @relation(fields: [collectionId], references: [id])
+  userCards    UserCard[]
+  
+  @@index([rarity])
+}
+
+model UserCard {
+  id         String   @id @default(cuid())
+  userId     String
+  templateId String
+  
+  isLocked   Boolean  @default(false) // Locked cards can't be sold
+  obtainedAt DateTime @default(now())
+  
+  user     User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  template CardTemplate @relation(fields: [templateId], references: [id])
+  
+  marketListing MarketListing?
+  
+  @@index([userId])
+}
+
+enum ListingStatus {
+  ACTIVE
+  SOLD
+  CANCELLED
+}
+
+model MarketListing {
+  id       String        @id @default(cuid())
+  cardId   String        @unique
+  sellerId String
+  price    Int           // In Rubies
+  status   ListingStatus @default(ACTIVE)
+  
+  createdAt DateTime @default(now())
+  soldAt    DateTime?
+  
+  card   UserCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+  seller User     @relation(fields: [sellerId], references: [id])
+  
+  @@index([status])
+  @@index([price])
+}
+
+// ============================================================
+// GUILD SYSTEM
+// ============================================================
+
+enum GuildRank {
+  LEADER
+  OFFICER
+  MEMBER
+}
+
+model Guild {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?  @db.Text
+  level       Int      @default(1)
+  exp         Int      @default(0)
+  treasury    Int      @default(0) // Rubies
+  
+  leaderId    String
+  
+  createdAt   DateTime @default(now())
+  
+  members     GuildMember[]
+  
+  @@index([name])
+}
+
+model GuildMember {
+  id       String     @id @default(cuid())
+  guildId  String
+  userId   String     @unique
+  rank     GuildRank  @default(MEMBER)
+  
+  joinedAt DateTime   @default(now())
+  
+  guild Guild @relation(fields: [guildId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([guildId])
+}
+
+// ============================================================
+// SOCIAL & WIKI FEATURES
+// ============================================================
+
+model ForumThread {
+  id          String   @id @default(cuid())
+  title       String
+  content     String   @db.Text
+  authorId    String
+  mangaId     String?  // Optional: thread can be about a specific manga
+  
+  isPinned    Boolean  @default(false)
+  isLocked    Boolean  @default(false)
+  views       Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  author   User      @relation(fields: [authorId], references: [id])
+  manga    Manga?    @relation(fields: [mangaId], references: [id])
+  comments Comment[]
+  
+  @@index([authorId])
+  @@index([mangaId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  content   String   @db.Text
+  authorId  String
+  threadId  String?  // For forum comments
+  parentId  String?  // For nested replies
+  
+  likes     Int      @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  author  User         @relation(fields: [authorId], references: [id])
+  thread  ForumThread? @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  parent  Comment?     @relation("CommentReplies", fields: [parentId], references: [id])
+  replies Comment[]    @relation("CommentReplies")
+  
+  @@index([authorId])
+  @@index([threadId])
+  @@index([parentId])
+}
+
+model WikiCharacter {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String   @db.Text
+  image       String?
+  mangaId     String
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  manga Manga @relation(fields: [mangaId], references: [id], onDelete: Cascade)
+  
+  @@index([slug])
+  @@index([mangaId])
+}
+
+enum NotificationType {
+  SYSTEM
+  REPLY
+  GIFT
+  GUILD_INVITE
+  CHAPTER_UPDATE
+  LEVEL_UP
+}
+
+model Notification {
+  id       String           @id @default(cuid())
+  userId   String
+  type     NotificationType
+  title    String
+  message  String
+  data     Json?            // Extra metadata
+  isRead   Boolean          @default(false)
+  
+  createdAt DateTime        @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId, isRead])
+}
+
+// ============================================================
+// ECONOMY & TRANSACTIONS
+// ============================================================
+
+enum TransactionType {
+  PURCHASE_RUBIES
+  PURCHASE_CARD_PACK
+  MARKET_SALE
+  MARKET_PURCHASE
+  GUILD_DONATION
+  DAILY_REWARD
+  ACHIEVEMENT_REWARD
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  userId      String
+  type        TransactionType
+  amount      Int             // Can be negative for purchases
+  description String
+  
+  createdAt   DateTime        @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+// ============================================================
+// ACHIEVEMENTS & GAMIFICATION
+// ============================================================
+
+model Achievement {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  icon        String
+  
+  // Reward
+  expReward    Int @default(0)
+  rubiesReward Int @default(0)
+  
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  
+  unlockedAt    DateTime @default(now())
+  
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id])
+  
+  @@unique([userId, achievementId])
+  @@index([userId])
+}

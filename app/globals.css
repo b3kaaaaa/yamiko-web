@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #7c3aed;
+  /* Violet-600 */
+  --color-primaryHover: #6d28d9;
+  /* Violet-700 */
+  --color-accent: #a78bfa;
+  /* Violet-400 */
+
+  /* The Void (Dark Mode) */
+  --color-background-light: #F3F4F6;
+  /* Keep light mode as is for now, or update if requested */
+  --color-background-dark: #050505;
+  /* Deepest Black */
+  --color-surface-dark: #0a0a0a;
+  /* Slightly lighter for cards */
+  --color-sidebar: #080808;
+  /* Sidebar specific */
+  --color-surface-highlight-dark: #121212;
+  /* Inputs/Search */
+
+  --color-text-light: #1F2937;
+  --color-text-dark: #ffffff;
+  /* Pure White */
+  --color-text-muted-dark: #a1a1aa;
+  /* Zinc-400 */
+
+  --font-display: Inter, sans-serif;
+
+  --breakpoint-3xl: 1800px;
+}
+
+/* Custom Utilities */
+@layer utilities {
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .gray-placeholder {
+    background-color: #27272A;
+  }
+
+  .banner-gradient {
+    background: radial-gradient(circle at top right, #3b0764 0%, #121217 60%);
+  }
+
+  .header-link {
+    position: relative;
+    height: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  .header-link::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(255, 255, 255, 0.05);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    z-index: -1;
+  }
+
+  .header-link:hover::before {
+    opacity: 1;
+  }
+
+  .horizontal-scroll-container {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .horizontal-scroll-container::-webkit-scrollbar {
+    width: 0px;
+    background: transparent;
+  }
+}

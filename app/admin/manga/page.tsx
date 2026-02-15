@@ -56,10 +56,10 @@ export default function AdminMangaPage() {
             description: editing.description || null, status: editing.status, type: editing.type,
         };
         if (editing.id) {
-            const { error } = await supabase.from("manga").update(payload).eq("id", editing.id);
+            const { error } = await supabase.from("manga").update(payload as any).eq("id", editing.id);
             if (error) showToast("Ошибка: " + error.message); else showToast("Обновлено ✓");
         } else {
-            const { error } = await supabase.from("manga").insert(payload);
+            const { error } = await supabase.from("manga").insert(payload as any);
             if (error) showToast("Ошибка: " + error.message); else showToast("Добавлено ✓");
         }
         setSaving(false); setModalOpen(false); fetchData();

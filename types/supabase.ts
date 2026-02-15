@@ -85,6 +85,70 @@ export interface Database {
                     deleted_at?: string | null
                 }
             }
+            manga: {
+                Row: {
+                    id: string
+                    title: string
+                    slug: string
+                    cover_url: string | null
+                    description: string | null
+                    rating: number
+                    views: number
+                    status: string
+                    type: string
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    title: string
+                    slug: string
+                    cover_url?: string | null
+                    description?: string | null
+                    rating?: number
+                    views?: number
+                    status?: string
+                    type?: string
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    title?: string
+                    slug?: string
+                    cover_url?: string | null
+                    description?: string | null
+                    rating?: number
+                    views?: number
+                    status?: string
+                    type?: string
+                    created_at?: string
+                }
+            }
+            chapters: {
+                Row: {
+                    id: string
+                    manga_id: string
+                    title: string | null
+                    slug: string | null
+                    number: number
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    manga_id: string
+                    title?: string | null
+                    slug?: string | null
+                    number: number
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    manga_id?: string
+                    title?: string | null
+                    slug?: string | null
+                    number?: number
+                    created_at?: string
+                }
+            }
             tower_levels: {
                 Row: {
                     floor_number: number
@@ -154,6 +218,22 @@ export interface Database {
                     icon_url: string | null
                     condition: string | null
                     rewards: Json
+                }
+                Insert: {
+                    id?: string
+                    name: string
+                    description?: string | null
+                    icon_url?: string | null
+                    condition?: string | null
+                    rewards?: Json
+                }
+                Update: {
+                    id?: string
+                    name?: string
+                    description?: string | null
+                    icon_url?: string | null
+                    condition?: string | null
+                    rewards?: Json
                 }
             }
             user_achievements: {

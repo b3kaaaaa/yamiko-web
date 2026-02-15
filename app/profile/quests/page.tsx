@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import Navbar from "@/components/layout/Navbar";
 import Link from "next/link";
 import { formatDistanceToNow } from "date-fns";
 import { ru } from "date-fns/locale";
@@ -30,7 +29,6 @@ type Streak = {
 
 export default function QuestsPage() {
     const supabase = createClient();
-    const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const [quests, setQuests] = useState<Quest[]>([]);
     const [streak, setStreak] = useState<Streak>({ current_streak: 0, last_activity_date: '', max_streak: 0 });
     const [loading, setLoading] = useState(true);

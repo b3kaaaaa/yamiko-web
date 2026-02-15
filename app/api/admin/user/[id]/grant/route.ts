@@ -52,7 +52,7 @@ export async function POST(
 
         if (!result.success) {
             return NextResponse.json(
-                { success: false, error: result.error },
+                { success: false, error: (result as any).error },
                 { status: 400 }
             );
         }

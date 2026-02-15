@@ -45,8 +45,7 @@ export default function QuestsPage() {
             await (supabase.rpc as any)('generate_daily_quests', { target_user_id: user.id });
 
             // 2. Fetch Active Quests
-            const { data: userQuests, error: questsError } = await supabase
-                .from('user_quests')
+            const { data: userQuests, error: questsError } = await (supabase.from('user_quests') as any)
                 .select(`
                     id,
                     progress,
@@ -88,8 +87,7 @@ export default function QuestsPage() {
             setQuests(formattedQuests);
 
             // 3. Fetch Streak
-            const { data: streakData, error: streakError } = await supabase
-                .from('quest_streaks')
+            const { data: streakData, error: streakError } = await (supabase.from('quest_streaks') as any)
                 .select('*')
                 .eq('user_id', user.id)
                 .single();

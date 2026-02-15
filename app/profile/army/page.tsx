@@ -83,24 +83,24 @@ export default function ShadowArmyPage() {
                 if (!user) return; // Handle not logged in
 
                 // 1. Get My Profile (Code + ID)
-                let { data: myProfile, error: profileError } = await supabase
-                    .from('profiles')
+                let { data: myProfile, error: profileError } = await (supabase
+                    .from('profiles') as any)
                     .select('*')
                     .eq('id', user.id)
-                    .single() as { data: any, error: any };
+                    .single();
 
                 // If profile doesn't exist, create it (Auto-add logic as requested)
                 if (!myProfile) {
                     // Try to insert a new profile
-                    const { data: newProfile, error: createError } = await supabase
-                        .from('profiles')
+                    const { data: newProfile, error: createError } = await (supabase
+                        .from('profiles') as any)
                         .insert([
                             {
                                 id: user.id,
                                 username: user.email?.split('@')[0] || `Hunter_${user.id.slice(0, 6)}`,
                                 // trigger will generate referral_code
                             }
-                        ] as any)
+                        ])
                         .select()
                         .single();
 
@@ -117,8 +117,8 @@ export default function ShadowArmyPage() {
                 }
 
                 // 2. Get Army List
-                const { data: armyList, error: armyError } = await supabase
-                    .from('profiles')
+                const { data: armyList, error: armyError } = await (supabase
+                    .from('profiles') as any)
                     .select('id, username, avatar_url, level, created_at, is_online')
                     .eq('referrer_id', user.id)
                     .order('created_at', { ascending: false })
@@ -133,8 +133,8 @@ export default function ShadowArmyPage() {
                 // Note: For large armies, limit(50) makes this inaccurate for TOTAL count.
                 // Better to run a count query.
 
-                const { count: realTotal } = await supabase
-                    .from('profiles')
+                const { count: realTotal } = await (supabase
+                    .from('profiles') as any)
                     .select('*', { count: 'exact', head: true })
                     .eq('referrer_id', user.id);
 

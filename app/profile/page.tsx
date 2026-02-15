@@ -16,8 +16,7 @@ export default function ProfileRedirect() {
                 return;
             }
 
-            const { data: profile } = await supabase
-                .from("profiles")
+            const { data: profile } = await (supabase.from("profiles") as any)
                 .select("display_id")
                 .eq("id", user.id)
                 .single();

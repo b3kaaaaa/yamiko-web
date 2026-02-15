@@ -10,7 +10,7 @@ export async function GET(request: Request) {
     const supabase = createAdminClient();
 
     try {
-        let finalResults = [];
+        let finalResults: any[] = [];
 
         // POPULAR REQUEST
         if (type === 'popular') {
@@ -170,7 +170,7 @@ export async function GET(request: Request) {
 
                         if (charErrorLower) throw charErrorLower;
 
-                        finalResults = (charDataLower || []).map(c => ({
+                        finalResults = (charDataLower || []).map((c: any) => ({
                             title: c.name,
                             slug: c.slug,
                             coverImage: c.image,
@@ -179,7 +179,7 @@ export async function GET(request: Request) {
                             type: 'CHARACTER'
                         }));
                     } else {
-                        finalResults = (data || []).map(c => ({
+                        finalResults = (data || []).map((c: any) => ({
                             title: c.name,
                             slug: c.slug,
                             coverImage: c.image,

@@ -47,10 +47,10 @@ export default function AdminAchievementsPage() {
         setSaving(true);
         const payload = { name: editing.name, description: editing.description || null, icon_url: editing.icon_url || null, condition: editing.condition || null, rewards: parsedRewards };
         if (editing.id) {
-            const { error } = await supabase.from("achievements").update(payload as any).eq("id", editing.id);
+            const { error } = await (supabase.from("achievements") as any).update(payload).eq("id", editing.id);
             if (error) showToast("Ошибка: " + error.message); else showToast("Обновлено ✓");
         } else {
-            const { error } = await supabase.from("achievements").insert(payload as any);
+            const { error } = await (supabase.from("achievements") as any).insert(payload);
             if (error) showToast("Ошибка: " + error.message); else showToast("Добавлено ✓");
         }
         setSaving(false); setModalOpen(false); fetchData();

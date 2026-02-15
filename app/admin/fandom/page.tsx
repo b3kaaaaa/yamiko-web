@@ -46,8 +46,8 @@ export default function AdminFandomPage() {
 
     async function fetchEdits() {
         setLoading(true);
-        const { data, error } = await supabase
-            .from("wiki_edits")
+        const { data, error } = await (supabase
+            .from("wiki_edits") as any)
             .select("*, manga(title)")
             .eq("status", "pending")
             .order("created_at", { ascending: false });
@@ -58,8 +58,8 @@ export default function AdminFandomPage() {
 
     async function fetchEntities() {
         setLoading(true);
-        const { data, error } = await supabase
-            .from("wiki_entities")
+        const { data, error } = await (supabase
+            .from("wiki_entities") as any)
             .select("*, manga(title)")
             .order("created_at", { ascending: false })
             .limit(100);
@@ -81,14 +81,14 @@ export default function AdminFandomPage() {
 
     async function handleReject() {
         if (!rejectModal) return;
-        const { error } = await supabase.from("wiki_edits").update({ status: "rejected", admin_comment: rejectComment || null }).eq("id", rejectModal);
+        const { error } = await (supabase.from("wiki_edits") as any).update({ status: "rejected", admin_comment: rejectComment || null }).eq("id", rejectModal);
         if (error) showToast("Ошибка: " + error.message);
         else { showToast("Отклонено ✓"); setRejectModal(null); setRejectComment(""); fetchEdits(); }
     }
 
     async function deleteEntity(id: string) {
         if (!confirm("Удалить эту статью вики?")) return;
-        const { error } = await supabase.from("wiki_entities").delete().eq("id", id);
+        const { error } = await (supabase.from("wiki_entities") as any).delete().eq("id", id);
         if (error) showToast("Ошибка: " + error.message);
         else { showToast("Удалено ✓"); fetchEntities(); }
     }

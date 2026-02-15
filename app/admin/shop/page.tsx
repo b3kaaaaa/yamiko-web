@@ -30,7 +30,7 @@ export default function AdminShopPage() {
 
     async function fetchData() {
         setLoading(true);
-        const { data, error } = await supabase.from("items").select("*").order("name");
+        const { data, error } = await (supabase.from("items") as any).select("*").order("name");
         if (error) console.error(error);
         setItems(data || []);
         setLoading(false);
@@ -48,10 +48,10 @@ export default function AdminShopPage() {
         setSaving(true);
         const payload = { name: editing.name, description: editing.description || null, image_url: editing.image_url || null, type: editing.type, rarity: editing.rarity, effects: parsedEffects };
         if (editing.id) {
-            const { error } = await supabase.from("items").update(payload).eq("id", editing.id);
+            const { error } = await (supabase.from("items") as any).update(payload).eq("id", editing.id);
             if (error) showToast("Ошибка: " + error.message); else showToast("Обновлено ✓");
         } else {
-            const { error } = await supabase.from("items").insert(payload);
+            const { error } = await (supabase.from("items") as any).insert(payload);
             if (error) showToast("Ошибка: " + error.message); else showToast("Добавлено ✓");
         }
         setSaving(false); setModalOpen(false); fetchData();
@@ -59,7 +59,7 @@ export default function AdminShopPage() {
 
     async function handleDelete(id: string) {
         if (!confirm("Удалить предмет?")) return;
-        const { error } = await supabase.from("items").delete().eq("id", id);
+        const { error } = await (supabase.from("items") as any).delete().eq("id", id);
         if (error) showToast("Ошибка: " + error.message); else { showToast("Удалено ✓"); fetchData(); }
     }
 

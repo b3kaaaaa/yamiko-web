@@ -34,15 +34,15 @@ export default function AdminTransactionsPage() {
 
     async function fetchGifts() {
         setLoading(true);
-        const { data, error } = await supabase
-            .from("gifts")
+        const { data, error } = await (supabase
+            .from("gifts") as any)
             .select("*, sender:profiles!gifts_sender_id_fkey(nickname), receiver:profiles!gifts_receiver_id_fkey(nickname)")
             .order("created_at", { ascending: false })
             .limit(100);
         if (error) {
             console.error("Gifts fetch error:", error);
             // Fallback without joins
-            const { data: fallback } = await supabase.from("gifts").select("*").order("created_at", { ascending: false }).limit(100);
+            const { data: fallback } = await (supabase.from("gifts") as any).select("*").order("created_at", { ascending: false }).limit(100);
             setGifts(fallback || []);
         } else {
             setGifts(data || []);
@@ -52,14 +52,14 @@ export default function AdminTransactionsPage() {
 
     async function fetchRewards() {
         setLoading(true);
-        const { data, error } = await supabase
-            .from("reward_history")
+        const { data, error } = await (supabase
+            .from("reward_history") as any)
             .select("*, profiles(nickname)")
             .order("created_at", { ascending: false })
             .limit(100);
         if (error) {
             console.error("Rewards fetch error:", error);
-            const { data: fallback } = await supabase.from("reward_history").select("*").order("created_at", { ascending: false }).limit(100);
+            const { data: fallback } = await (supabase.from("reward_history") as any).select("*").order("created_at", { ascending: false }).limit(100);
             setRewards(fallback || []);
         } else {
             setRewards(data || []);

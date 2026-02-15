@@ -33,7 +33,7 @@ export default function AdminQuestsPage() {
 
     async function fetchData() {
         setLoading(true);
-        const { data, error } = await supabase.from("quest_definitions").select("*").order("created_at", { ascending: false });
+        const { data, error } = await (supabase.from("quest_definitions") as any).select("*").order("created_at", { ascending: false });
         if (error) console.error(error);
         setItems(data || []);
         setLoading(false);
@@ -56,24 +56,24 @@ export default function AdminQuestsPage() {
             is_active: editing.is_active, weight: editing.weight,
         };
         if (editing.id) {
-            const { error } = await supabase.from("quest_definitions").update(payload).eq("id", editing.id);
+            const { error } = await (supabase.from("quest_definitions") as any).update(payload).eq("id", editing.id);
             if (error) showToast("Ошибка: " + error.message); else showToast("Обновлено ✓");
         } else {
-            const { error } = await supabase.from("quest_definitions").insert(payload);
+            const { error } = await (supabase.from("quest_definitions") as any).insert(payload);
             if (error) showToast("Ошибка: " + error.message); else showToast("Добавлено ✓");
         }
         setSaving(false); setModalOpen(false); fetchData();
     }
 
     async function toggleActive(id: string, current: boolean) {
-        await supabase.from("quest_definitions").update({ is_active: !current }).eq("id", id);
+        await (supabase.from("quest_definitions") as any).update({ is_active: !current }).eq("id", id);
         showToast(!current ? "Активирован ✓" : "Деактивирован ✓");
         fetchData();
     }
 
     async function handleDelete(id: string) {
         if (!confirm("Удалить этот квест?")) return;
-        const { error } = await supabase.from("quest_definitions").delete().eq("id", id);
+        const { error } = await (supabase.from("quest_definitions") as any).delete().eq("id", id);
         if (error) showToast("Ошибка: " + error.message); else { showToast("Удалено ✓"); fetchData(); }
     }
 

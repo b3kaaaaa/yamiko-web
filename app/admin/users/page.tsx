@@ -33,7 +33,7 @@ export default function AdminUsersPage() {
 
     async function fetchUsers() {
         setLoading(true);
-        const { data, error } = await supabase.from("profiles").select("*").order("created_at", { ascending: false }).limit(100);
+        const { data, error } = await (supabase.from("profiles") as any).select("*").order("created_at", { ascending: false }).limit(100);
         if (error) console.error(error);
         setUsers(data || []);
         setLoading(false);
@@ -46,7 +46,7 @@ export default function AdminUsersPage() {
     async function handleSave() {
         if (!editing?.id) return;
         setSaving(true);
-        const { error } = await supabase.from("profiles").update({
+        const { error } = await (supabase.from("profiles") as any).update({
             role: editing.role, level: editing.level, rubies: editing.rubies,
             exp: editing.exp, energy_current: editing.energy_current, energy_max: editing.energy_max, rank_tier: editing.rank_tier,
         }).eq("id", editing.id);
@@ -58,7 +58,7 @@ export default function AdminUsersPage() {
         const reason = action === "ban" ? prompt("Причина бана:") : null;
         if (action === "ban" && !reason) return;
         if (action === "ban") {
-            await supabase.from("moderation_logs").insert({ user_id: userId, admin_id: userId, type: "BAN", reason: reason! });
+            await (supabase.from("moderation_logs") as any).insert({ user_id: userId, admin_id: userId, type: "BAN", reason: reason! });
         }
         // Toggle a simple "banned" indicator via role or moderation check
         showToast(action === "ban" ? "Пользователь забанен ✓" : "Бан снят ✓");

@@ -32,7 +32,7 @@ export default function AdminChaptersPage() {
 
     useEffect(() => {
         (async () => {
-            const { data } = await supabase.from("manga").select("id, title").order("title");
+            const { data } = await (supabase.from("manga") as any).select("id, title").order("title");
             setMangaList(data || []);
             if (data && data.length > 0) setSelectedManga(data[0].id);
             setLoading(false);
@@ -45,8 +45,8 @@ export default function AdminChaptersPage() {
 
     async function fetchChapters() {
         setLoading(true);
-        const { data, error } = await supabase
-            .from("chapters")
+        const { data, error } = await (supabase
+            .from("chapters") as any)
             .select("*")
             .eq("manga_id", selectedManga)
             .order("number", { ascending: false });
@@ -63,10 +63,10 @@ export default function AdminChaptersPage() {
         setSaving(true);
         const payload = { manga_id: selectedManga, title: editing.title || null, number: editing.number, slug: editing.slug || `ch-${editing.number}` };
         if (editing.id) {
-            const { error } = await supabase.from("chapters").update(payload).eq("id", editing.id);
+            const { error } = await (supabase.from("chapters") as any).update(payload).eq("id", editing.id);
             if (error) showToast("Ошибка: " + error.message); else showToast("Обновлено ✓");
         } else {
-            const { error } = await supabase.from("chapters").insert(payload);
+            const { error } = await (supabase.from("chapters") as any).insert(payload);
             if (error) showToast("Ошибка: " + error.message); else showToast("Добавлено ✓");
         }
         setSaving(false); setModalOpen(false); fetchChapters();
@@ -74,7 +74,7 @@ export default function AdminChaptersPage() {
 
     async function handleDelete(id: string) {
         if (!confirm("Удалить эту главу?")) return;
-        const { error } = await supabase.from("chapters").delete().eq("id", id);
+        const { error } = await (supabase.from("chapters") as any).delete().eq("id", id);
         if (error) showToast("Ошибка: " + error.message); else { showToast("Удалено ✓"); fetchChapters(); }
     }
 
